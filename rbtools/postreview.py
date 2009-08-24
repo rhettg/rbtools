@@ -2409,7 +2409,7 @@ def parse_options(args):
                              options.testing_file)
             sys.exit(1)
 
-    if options.repository_url and not options.revision_range:
+    if options.repository_url and sys.stdin.isatty() and not options.revision_range:
         sys.stderr.write("The --repository-url option requires the "
                          "--revision-range option.\n")
         sys.exit(1)
@@ -2496,8 +2496,11 @@ def main():
         parent_diff = None
     elif options.label and isinstance(tool, ClearCaseClient):
         diff, parent_diff = tool.diff_label(options.label)
-    else:
+    elif sys.stdin.isatty():
         diff, parent_diff = tool.diff(args)
+    else:
+        diff = ''.join(sys.stdin)
+        parent_diff = None
 
     if options.output_diff_only:
         print diff
